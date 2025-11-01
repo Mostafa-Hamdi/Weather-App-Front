@@ -13,22 +13,39 @@ import {
   Sunrise,
   Sunset,
 } from "lucide-react";
+import AirCard from "./components/AirCard";
 
 export default function WeatherApp() {
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState(() => {
+    try {
+      const locationStorage = localStorage.getItem("location");
+      return locationStorage ? JSON.parse(locationStorage) : "";
+    } catch (err) {
+      throw new Error("Invalid Location");
+    }
+  });
   const [location, setLocation] = useState("");
-  const [weatherData, setWeatherData] = useState(null);
+  const [weatherData, setWeatherData] = useState(() => {
+    try {
+      const saved = localStorage.getItem("data");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:3000/weather?address=${address || "London"}`,
+        `https://weather-app-backend-rkqo.onrender.com/weather?address=${address || "London"}`,
       );
       const data = await response.json();
       setWeatherData(data.data);
+      localStorage.setItem("data", JSON.stringify(data.data));
       setLocation(address || "London");
+      localStorage.setItem("location", address);
     } catch (error) {
       console.error("Error fetching weather:", error);
     } finally {
@@ -109,7 +126,7 @@ export default function WeatherApp() {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className={`w-full mt-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 rounded-2xl font-semibold text-lg hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg ${
+              className={`cursor-pointer w-full mt-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 rounded-2xl font-semibold text-lg hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg ${
                 loading ? "opacity-70 cursor-not-allowed" : ""
               }`}
             >
@@ -315,42 +332,24 @@ export default function WeatherApp() {
                   Air Quality Details
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                  <div className="text-center">
-                    <div className="text-sm text-gray-600 mb-1">CO</div>
-                    <div className="text-lg font-bold text-gray-800">
-                      {parseFloat(weatherData.air_quality.co).toFixed(1)}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm text-gray-600 mb-1">NO₂</div>
-                    <div className="text-lg font-bold text-gray-800">
-                      {parseFloat(weatherData.air_quality.no2).toFixed(1)}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm text-gray-600 mb-1">O₃</div>
-                    <div className="text-lg font-bold text-gray-800">
-                      {weatherData.air_quality.o3}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm text-gray-600 mb-1">SO₂</div>
-                    <div className="text-lg font-bold text-gray-800">
-                      {parseFloat(weatherData.air_quality.so2).toFixed(1)}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm text-gray-600 mb-1">PM2.5</div>
-                    <div className="text-lg font-bold text-gray-800">
-                      {parseFloat(weatherData.air_quality.pm2_5).toFixed(1)}
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm text-gray-600 mb-1">PM10</div>
-                    <div className="text-lg font-bold text-gray-800">
-                      {parseFloat(weatherData.air_quality.pm10).toFixed(1)}
-                    </div>
-                  </div>
+                  <AirCard heading={"CO"} stats={weatherData.air_quality.co} />
+                  <AirCard
+                    heading={"NO₂"}
+                    stats={weatherData.air_quality.no2}
+                  />
+                  <AirCard heading={"O₃"} stats={weatherData.air_quality.o3} />
+                  <AirCard
+                    heading={"SO₂"}
+                    stats={weatherData.air_quality.so2}
+                  />
+                  <AirCard
+                    heading={"PM2.5"}
+                    stats={weatherData.air_quality.pm2_5}
+                  />
+                  <AirCard
+                    heading={"PM10"}
+                    stats={weatherData.air_quality.pm10}
+                  />
                 </div>
               </div>
             </div>
@@ -361,33 +360,6 @@ export default function WeatherApp() {
           <p>Comprehensive weather data and forecasts</p>
         </div>
       </div>
-
-      <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.5s ease-out;
-        }
-        @keyframes spin-slow {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        .animate-spin-slow {
-          animation: spin-slow 20s linear infinite;
-        }
-      `}</style>
     </div>
   );
 }
