@@ -1,14 +1,12 @@
-import React from "react";
-
-const AirCard = ({ heading, stats }) => {
+function AirCard({ heading, stats }) {
   return (
-    <div className="text-center">
-      <div className="text-sm text-gray-600 mb-1">{heading}</div>
-      <div className="text-lg font-bold text-gray-800">
-        {parseFloat(stats).toFixed(1)}
+    <div className="bg-white rounded-lg p-4 border border-gray-200">
+      <div className="text-sm text-gray-600 font-medium mb-1">{heading}</div>
+      <div className="text-2xl font-bold text-gray-800">
+        {stats?.toFixed(1) || "N/A"}
       </div>
+      <div className="text-xs text-gray-500 mt-1">μg/m³</div>
     </div>
   );
-};
-
+}
 export default AirCard;
