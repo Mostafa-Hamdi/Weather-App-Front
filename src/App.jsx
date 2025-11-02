@@ -18,11 +18,19 @@ export default function WeatherApp() {
   const [error, setError] = useState("");
 
   const handleSubmit = async () => {
+    // Validate input - trim whitespace
+    const trimmedAddress = address.trim();
+
+    if (!trimmedAddress) {
+      setError("Please enter a city name or address.");
+      return;
+    }
+
     try {
       setLoading(true);
       setError("");
       const response = await fetch(
-        `https://weather-app-backend-rkqo.onrender.com/weather?address=${address || "London"}`,
+        `https://weather-app-backend-rkqo.onrender.com/weather?address=${trimmedAddress}`,
       );
 
       if (!response.ok) {
@@ -38,7 +46,7 @@ export default function WeatherApp() {
       }
 
       setWeatherData(data.data);
-      setLocation(address || "London");
+      setLocation(trimmedAddress);
     } catch (error) {
       console.error("Error fetching weather:", error);
       setError(error.message || "Something went wrong. Please try again.");
